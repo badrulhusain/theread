@@ -1,7 +1,16 @@
 const { PrismaClient } = require('@prisma/client');
-require('dotenv').config();  // Add this if using .env file
 
-const prisma = new PrismaClient();  // No datasources needed
+// Import the configuration we use in the main app to ensure consistency
+// Note: transforming imports might be tricky without ts-node, so we'll mock the config here for the script
+// effectively doing what lib/prisma.ts does but in CommonJS
+
+const prisma = new PrismaClient({
+    datasources: {
+        db: {
+            url: process.env.DATABASE_URL
+        }
+    }
+});
 
 async function main() {
   const email = process.argv[2];

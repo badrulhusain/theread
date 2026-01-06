@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        if (user.isBlocked) {
+        if (user.isBlocked  ) {
           throw new Error("Your account has been blocked.");
         }
 
