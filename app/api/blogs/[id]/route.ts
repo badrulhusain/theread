@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { trackView } from "@/lib/services/views";
 
 // GET /api/blogs/[id] - Get a single blog by ID
 export async function GET(
@@ -34,6 +35,17 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    // Track view asynchronously to not block the response
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const session = await getServerSession(authOptions).catch(() => null);
+    
+    // We don't await this to keep the response fast, 
+    // although in serverless we might need to be careful.
+    // Actually, awaiting is safer in serverless to ensure it finishes.
+    await trackView(id, ip, session?.user?.id).catch(err => {
+      console.error("Failed to track view:", err);
+    });
 
     return NextResponse.json(blog, { status: 200 });
   } catch (error) {
