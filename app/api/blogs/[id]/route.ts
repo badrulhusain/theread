@@ -36,13 +36,11 @@ export async function GET(
       );
     }
 
-    // Track view asynchronously to not block the response
+    // Track view asynchronously
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
     const session = await getServerSession(authOptions).catch(() => null);
     
-    // We don't await this to keep the response fast, 
-    // although in serverless we might need to be careful.
-    // Actually, awaiting is safer in serverless to ensure it finishes.
+    // Using await here to ensure it completes in serverless environments
     await trackView(id, ip, session?.user?.id).catch(err => {
       console.error("Failed to track view:", err);
     });

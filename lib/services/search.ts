@@ -18,10 +18,6 @@ export async function searchBlogs(
     return [];
   }
 
-  // Use websearch_to_tsquery for a more user-friendly search experience
-  // or plainto_tsquery for simple exact-ish matching.
-  // We'll use websearch_to_tsquery here.
-  
   const results = await db.$queryRawUnsafe<SearchResult[]>(
     `
     SELECT 

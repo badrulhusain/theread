@@ -89,13 +89,27 @@ model Blog {
   tags          Tag[]      @relation("BlogToTag")
   status        Status     @default(draft)
   featuredImage Json?
+  viewCount     Int        @default(0)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   likes         Like[]
   bookmarks     Bookmark[]
   comments      Comment[]
+  views         PostView[]
 
   @@map("blogs")
+}
+
+model PostView {
+  id         String   @id @default(cuid())
+  postId     String
+  blog       Blog     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  identifier String // Hashed IP or Session ID
+  createdAt  DateTime @default(now())
+
+  @@index([postId, identifier])
+  @@index([createdAt])
+  @@map("post_views")
 }
 
 enum Status {

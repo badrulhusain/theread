@@ -39,15 +39,10 @@ export async function trackView(postId: string, ip: string, sessionId?: string) 
 
 /**
  * Syncs view counts from PostView table to Blog table.
- * This can be run periodically via a cron job or a background task.
  */
 export async function syncViewCounts() {
   console.log("Syncing view counts...");
 
-  // We can use a more sophisticated approach here, but for simplicity:
-  // Find all blogs and update their viewCount based on the total count of PostViews.
-  // In a high-traffic site, you'd only update blogs that had NEW views since the last sync.
-  
   const blogViews = await db.postView.groupBy({
     by: ["postId"],
     _count: {
