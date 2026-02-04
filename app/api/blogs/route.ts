@@ -3,50 +3,52 @@ import { db } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-// GET /api/blogs - List all blogs
-export async function GET(req: NextRequest) {
+// GET                - List all blogs
+export async function GET(req:NextRequest){
+
   try {
-    const { searchParams } = new URL(req.url);
-    const status = searchParams.get("status");
-    const authorId = searchParams.get("authorId");
+    const {searchParams}=new URL(req.nextUrl);
+    const authorId=searchParams.get("authorId")
+    let status=searchParams.get("status")
+const where:any={}
+  if(status &&(status === "draft" || status==="published")){
+    where.status=status
 
-    const where: any = {};
-    
-    if (status && (status === "draft" || status === "published")) {
-      where.status = status;
-    }
-    
-    if (authorId) {
-      where.authorId = authorId;
-    }
+  }
+  if(authorId){
+where.authorId=authorId
+  }
+  const blogs=db.blog.findMany({
+    where,
+    include:{
+      author:{
+        select:{
+          id:true,
+          name:true,
+          email:true,
+          image:true
 
-    const blogs = await db.blog.findMany({
-      where,
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
         },
-        category: true,
-        tags: true,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+      category:true,
+      tags:true
+    },
+    orderBy:{
+      createdAt:"desc"
+    }
+  })
 
-    return NextResponse.json(blogs, { status: 200 });
+return NextResponse.json(blogs,{status:200})
+
   } catch (error) {
-    console.error("Error fetching blogs:", error);
+      console.error("Error fetching blogs:", error);
     return NextResponse.json(
       { error: "Failed to fetch blogs" },
       { status: 500 }
     );
+    
   }
+
 }
 
 // POST /api/blogs - Create a new blog
